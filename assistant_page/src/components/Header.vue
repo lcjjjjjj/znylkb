@@ -58,7 +58,7 @@ const closeTab = (item, index) => {
     </div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
 
 .flex-box {
     display: flex;

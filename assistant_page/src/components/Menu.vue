@@ -50,6 +50,18 @@ const isCollapsed = computed(() => store.state.menu.isCollapsed)
                 </el-icon>
                 <span>{{ item.meta.name }}</span>
             </el-menu-item>
+            <el-menu-item @click="handleClick(item)" v-if="item.path == '/exfile'" :key="item.meta.id" :index="item.meta.id">
+                <el-icon size="20">
+                    <component :is="item.meta.icon"></component>
+                </el-icon>
+                <span>{{ item.meta.name }}</span>
+            </el-menu-item>
+            <el-menu-item @click="handleClick(item)" v-if="item.path == '/user'" :key="item.meta.id" :index="item.meta.id">
+                <el-icon size="20">
+                    <component :is="item.meta.icon"></component>
+                </el-icon>
+                <span>{{ item.meta.name }}</span>
+            </el-menu-item>
         </template>
     </el-menu>
 </template>

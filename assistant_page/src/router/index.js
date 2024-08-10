@@ -21,9 +21,25 @@ const router = createRouter({
           path: '/textsum',
           name: 'textsum',
           meta: {
-            id: '2', name: '文本处理', icon: 'document', path: '/textsum', describe: '文本处理，上传文本或直接输入文本，可将口语化的文本转换为书面文本。'
+            id: '2', name: '文本转写', icon: 'document', path: '/textsum', describe: '文本转写，上传文本或直接输入文本，可将口语化的文本转换为书面文本。'
           },
           component: () => import('../views/textsum/Textsum.vue')
+        },
+        {
+          path: '/exfile',
+          name: 'exfile',
+          meta: {
+            id: '3', name: '音频转换', icon: 'Refresh', path: '/exfile', describe: '音频转换，上传音频文件，可选择指定格式保存。'
+          },
+          component: () => import('../views/exfile/Exfile.vue')
+        },
+        {
+          path: '/user',
+          name: 'user',
+          meta: {
+            id: '4', name: '账号管理', icon: 'User', path: '/user', describe: '账号管理，修改账户的基本信息。'
+          },
+          component: () => import('../views/user/User.vue')
         }
       ]
     },
