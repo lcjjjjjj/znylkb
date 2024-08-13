@@ -11,6 +11,7 @@ import logging
 import pyaudio
 import multiprocessing
 import signal
+import wave
 import os
 
 # reload(sys)
@@ -41,33 +42,38 @@ class Client():
     def rt_send(self, chunk_size=1024, sample_rate=16000, channels=1):
         # 初始化PyAudio并打开音频流
         p = pyaudio.PyAudio()
-        stream = p.open(format=pyaudio.paInt16, channels=channels,
-                        rate=sample_rate, input=True, frames_per_buffer=chunk_size)
+        with wave.open('audio_temp.wav','wb') as wf:
+            wf.setnchannels(channels)
+            wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
+            wf.setframerate(sample_rate)
+            stream = p.open(format=pyaudio.paInt16, channels=channels,
+                            rate=sample_rate, input=True, frames_per_buffer=chunk_size)
+            # 开始音频流
+            stream.start_stream()
+            try:
+                while True:
+                    # 从麦克风读取音频数据
+                    audio_data = stream.read(chunk_size)
+                    # 保存音频临时文件
+                    wf.writeframes(audio_data)
+                    # 发送到服务器
+                    self.ws.send(audio_data)
 
-        # 开始音频流
-        stream.start_stream()
+                    # 可以在这里添加逻辑来决定何时停止发送，例如检测静音或达到特定时间
 
-        try:
-            while True:
-                # 从麦克风读取音频数据
-                audio_data = stream.read(chunk_size)
-                # 发送到服务器
-                self.ws.send(audio_data)
+            except KeyboardInterrupt:
+                # 用户中断时的处理
+                pass
+            finally:
+                # 停止音频流并关闭资源
+                stream.stop_stream()
+                stream.close()
+                p.terminate()
+                wf.close()
 
-                # 可以在这里添加逻辑来决定何时停止发送，例如检测静音或达到特定时间
-
-        except KeyboardInterrupt:
-            # 用户中断时的处理
-            pass
-        finally:
-            # 停止音频流并关闭资源
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
-
-        # 发送结束标签
-        self.ws.send(bytes(self.end_tag.encode('utf-8')))
-        print("send end tag success")
+            # 发送结束标签
+            self.ws.send(bytes(self.end_tag.encode('utf-8')))
+            print("send end tag success")
 
     def recv(self):
         try:

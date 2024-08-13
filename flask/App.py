@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from Textsum import text_rewrite
 from Ifasr import file_asr
 from Rtasr import rtasr_start, rtasr_stop
+from fileconvert import f_convert
+import os
 
 app = Flask(__name__)
 CORS(app, resources=r'/*')
@@ -63,4 +65,46 @@ def temp_clear():
     if flag['text'] == 'clear':
         with open('temp','w') as f:
             f.close()
+        if os.path.exists('./audio_temp.wav'):
+            os.remove('./audio_temp.wav')
     return jsonify({'msg':'200'})
+
+@app.route('/download',methods=['GET'])
+def download_audiofile():
+    print(request.args.get)
+    if request.args.get('file') == 'asrfile':
+        if os.path.exists('audio_temp.wav'):
+            return send_file('audio_temp.wav',as_attachment=True,download_name='audio_temp.wav')
+        else:
+            return jsonify({'msg': 'NotFound'})
+    elif request.args.get('file') == 'wavfile':
+        if os.path.exists('./temp_save.wav'):
+            return send_file('temp_save.wav',as_attachment=True,download_name='temp_save.wav')
+        else:
+            return jsonify({'msg': 'NoFileUpload'})
+    elif request.args.get('file') == 'mp3file':
+        if os.path.exists('./temp_save.mp3'):
+            return send_file('temp_save.mp3',as_attachment=True,download_name='temp_save.mp3')
+        else:
+            return jsonify({'msg': 'NoFileUpload'})
+    else:
+        return jsonify({'msg': 'NoFileUpload'})
+    
+@app.route('/convert',methods=['POST','GET'])
+def convert_file():
+    f = request.files['file']
+    filetype = f.filename.split('.')[1]
+    f_convert(f)
+    return jsonify({'msg':'200 OK'})
+
+@app.route('/delete',methods=['DELETE'])
+def delete_file():
+    if os.path.exists('temp_save.wav'):
+        os.remove('temp_save.wav')
+    elif os.path.exists('temp_save.mp3'):
+        os.remove('temp_save.mp3')
+    return jsonify({'msg': 'delete successfully'})
+
+@app.route('/test', methods=['POST','GET'])
+def request_test():
+    return jsonify({'msg':'200 OK'})

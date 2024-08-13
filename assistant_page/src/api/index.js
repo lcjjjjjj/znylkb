@@ -15,3 +15,11 @@ export const postKeep = (data) => {
 export const postClear = (data) => {
     return request.post('/clear',data)
 }
+
+export const getFile = (params) => {
+    return request.get('/download',{params, responseType: 'blob'})
+}
+
+export const deleteFile = () => {
+    return request.delete('/delete')
+}
