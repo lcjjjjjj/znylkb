@@ -5,6 +5,8 @@ import { useRoute, useRouter } from 'vue-router';
 //取得store实例
 const store = useStore()
 const selectedItem = computed(() => store.state.menu.selectMenu)
+const userItem = computed(() => store.state.user.userInfo).value
+console.log(userItem)
 //当前的路由对象
 const route = useRoute()
 const router = useRouter()
@@ -27,6 +29,15 @@ const closeTab = (item, index) => {
         router.push({path: selectedItemData[index].path})
     }
 }
+
+const handleCommand = (command) => {
+    if (command === 'quit'){
+        store.commit('clearInfo')
+        router.push('/')
+    }
+}
+
+
 </script>
 
 <template>
@@ -43,14 +54,14 @@ const closeTab = (item, index) => {
             </ul>
         </div>
         <div class="header-right">
-            <el-dropdown>
+            <el-dropdown @command="handleCommand">
                 <div class="el-dropdown-link flex-box">
                     <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
-                    <p class="username">admin</p>
+                    <p class="username">{{ userItem[0]['username'] }}</p>
                 </div>
                 <template #dropdown>
                 <el-dropdown-menu>
-                    <el-dropdown-item>退出登录</el-dropdown-item>
+                    <el-dropdown-item command="quit">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
                 </template>
             </el-dropdown>

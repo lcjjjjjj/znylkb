@@ -26,7 +26,7 @@ onMounted(()=>{
         <el-container>
           <el-header class="header-manu"><Header /></el-header>
           <el-main>
-            <div v-show="route.path === '/'" id="message" class="helloMessage"></div>
+            <div v-show="route.path === '/main'" id="message" class="helloMessage"></div>
             <RouterView />
           </el-main>
         </el-container>

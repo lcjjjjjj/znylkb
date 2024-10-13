@@ -1,12 +1,16 @@
 <script setup>
 import Panel from '@/components/Panel.vue';
-import { ref } from 'vue';
-import { ElMessageBox } from 'element-plus';
+import { ref, computed } from 'vue';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { postSignal, postKeep, postClear, getFile } from '@/api';
+import { useStore } from 'vuex';
+import { postText } from '@/api';
 
 const result = ref('');
 const timer = ref(null)
-
+const store = useStore()
+const userItem = computed(() => store.state.user.userInfo).value
+console.log(userItem)
 
 const handleExceed = (files, uploadFiles) => {
     console.log('限制上传', files, uploadFiles)
@@ -32,15 +36,24 @@ const beforeUpload = (file) => {
 const onClicksave = () => {
     if (result.value !== ''){
         const fileContent = result.value
-        const blob = new Blob([fileContent],{ type: 'text/plain' })
-        const link = document.createElement('a')
-        const url = window.URL.createObjectURL(blob)
-        link.href = url
-        link.download = 'save.txt'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
+        postText({text: fileContent,task: 'save', username: userItem[0]['username']}).then((res) => {
+            console.log(res.data.msg)
+            if(res.data.msg === 'Done'){
+                ElMessage.success('success')
+            }
+            else{
+                ElMessage.error('failed')
+            }
+        })
+        // const blob = new Blob([fileContent],{ type: 'text/plain' })
+        // const link = document.createElement('a')
+        // const url = window.URL.createObjectURL(blob)
+        // link.href = url
+        // link.download = 'save.txt'
+        // document.body.appendChild(link)
+        // link.click()
+        // document.body.removeChild(link)
+        // window.URL.revokeObjectURL(url)
     }
     else{
         ElMessageBox.alert('保存的内容不能为空','温馨提示',{confirmButtonText: '确定',})

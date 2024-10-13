@@ -1,12 +1,18 @@
 <script lang="ts" setup>
 import Panel from '@/components/Panel.vue';
-import { ref, reactive } from 'vue';
-import { ElFooter, type FormInstance, type FormRules } from 'element-plus'
+import { ref, reactive, computed } from 'vue';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { useStore } from 'vuex';
+import { userUpdate } from '@/api';
 
 const ruleFormRef = ref<FormInstance>()
+const store = useStore()
+
+const userItem = computed(() => store.state.user.userInfo).value
+console.log(userItem)
 
 const ruleForm = reactive({
-    username: 'admin',
+    username: userItem[0]['username'],
     pass: '',
     checkpass: ''
 })
@@ -37,7 +43,6 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
 }
 
 const rules = reactive<FormRules<typeof ruleForm>>({
-    username: [{required: true, message:'请输入用户名', trigger: 'blur'}],
     pass: [{required: true, validator: validatePass, trigger: 'blur' }],
     checkpass: [{required: true, validator: validatePass2, trigger: 'blur' }]
 })
@@ -47,6 +52,13 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log('submit!')
+      userUpdate({username: ruleForm.username, password: ruleForm.pass}).then((res) => {
+        if(res.data.msg === 'success'){
+            ElMessage.success('Update successifully!')
+        }
+        else
+            ElMessage.error('Unkonwn error!')
+      })
     } else {
       console.log('error submit!')
     }
@@ -76,7 +88,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
             class="demo-ruleForm"    
         >   
             <el-form-item label="用户名" prop="username">
-                <el-input v-model="ruleForm.username" />
+                <el-input disabled v-model="ruleForm.username" />
             </el-form-item>
             <el-form-item label="密码" prop="pass">
                 <el-input v-model="ruleForm.pass" type="password" autocomplete="off" />

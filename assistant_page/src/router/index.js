@@ -1,11 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Main from '../views/Main.vue'
 
+// 创建路由器
 const router = createRouter({
+  // 路由工作模式
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'login',
+      component: () => import('../views/Login.vue')
+    },
+    {
+      path: '/main',
       name: 'main',
       component: Main,
       children: [
@@ -34,10 +41,18 @@ const router = createRouter({
           component: () => import('../views/exfile/Exfile.vue')
         },
         {
+          path: '/file',
+          name: 'file',
+          meta: {
+            id: '4', name: '文件管理', icon: 'Folder', path: '/file', describe: '文件管理，管理生成的文本和音频文件。'
+          },
+          component: () => import('../views/file/FileManager.vue')
+        },
+        {
           path: '/user',
           name: 'user',
           meta: {
-            id: '4', name: '账号管理', icon: 'User', path: '/user', describe: '账号管理，修改账户的基本信息。'
+            id: '5', name: '账号管理', icon: 'User', path: '/user', describe: '账号管理，修改账户的基本信息。'
           },
           component: () => import('../views/user/User.vue')
         }

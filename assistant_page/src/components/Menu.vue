@@ -13,7 +13,7 @@ import { useStore } from 'vuex';
 
 const router = useRouter()
 console.log(router,'router')
-const mapdata = reactive(router.options.routes[0].children)
+const mapdata = reactive(router.options.routes[1].children)
 
 const store = useStore()
 
@@ -56,6 +56,12 @@ const isCollapsed = computed(() => store.state.menu.isCollapsed)
                 </el-icon>
                 <span>{{ item.meta.name }}</span>
             </el-menu-item>
+            <el-menu-item @click="handleClick(item)" v-if="item.path == '/file'" :key="item.meta.id" :index="item.meta.id">
+                <el-icon size="20">
+                    <component :is="item.meta.icon"></component>
+                </el-icon>
+                <span>{{ item.meta.name }}</span>
+            </el-menu-item>
             <el-menu-item @click="handleClick(item)" v-if="item.path == '/user'" :key="item.meta.id" :index="item.meta.id">
                 <el-icon size="20">
                     <component :is="item.meta.icon"></component>
@@ -74,7 +80,7 @@ const isCollapsed = computed(() => store.state.menu.isCollapsed)
 
 .logo-lg{
     display: grid;
-    place-items: center;;
+    place-items: center;
     font-size: 20px;
     font-weight: bold;
     text-align: center;

@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from Textsum import text_rewrite
+from Textsum import text_rewrite, text_translate, text_summarize
 from Ifasr import file_asr
 from Rtasr import rtasr_start, rtasr_stop
 from fileconvert import f_convert
+from filemanager import get_file_list, save_text_file
+from usermanager import user_login, user_register, user_update
 import os
+import hashlib
 
 app = Flask(__name__)
 CORS(app, resources=r'/*')
@@ -33,12 +36,27 @@ def recv_file():
 def recv_text():
     data = request.json
     print(data)
-    result = text_rewrite(data['text'])
+    if data['task'] == 'first':
+        result = text_rewrite(data['text'])
+    elif data['task'] == 'second':
+        result = text_translate(data['text'])
+    elif data['task'] == 'save':
+        result = save_text_file(data['text'], data['username'])
+    else:
+        result = text_summarize(data['text'])
     # print(result)
     response = {
         'msg': result
     }
     return jsonify(response)
+
+@app.route('/textfileupload', methods=['POST'])
+def recv_text_file():
+    f = request.files['file']
+    f = f.read()
+    file_content = f.decode('utf-8')
+    # print(f.decode('utf-8'))
+    return jsonify({'msg': file_content})
 
 @app.route('/rtasr', methods=['POST'])
 def rt_asr():
@@ -87,6 +105,13 @@ def download_audiofile():
             return send_file('temp_save.mp3',as_attachment=True,download_name='temp_save.mp3')
         else:
             return jsonify({'msg': 'NoFileUpload'})
+    elif request.args.get('file') == 'textfile':
+        filename = request.args.get('filename')
+        print(type(filename))
+        username = request.args.get('username')
+        cname = hashlib.sha256(username.encode('utf-8')).hexdigest()
+        filepath = '/home/user/code/znylkb/flask/filecache/'+cname+'/'+filename
+        return send_file(filepath,as_attachment=True,download_name=filename)
     else:
         return jsonify({'msg': 'NoFileUpload'})
     
@@ -104,6 +129,41 @@ def delete_file():
     elif os.path.exists('temp_save.mp3'):
         os.remove('temp_save.mp3')
     return jsonify({'msg': 'delete successfully'})
+
+@app.route('/getfilelist', methods=['GET','POST'])
+def send_list():
+    # print(request.args.get('user'))
+    user = request.args.get('user')
+    return_data = get_file_list(user)
+    return jsonify(return_data)
+
+@app.route('/useroption', methods=['POST'])
+def user_option():
+    print(request.json)
+    request_data = request.json
+    if request_data['task'] == 'login':
+        response = user_login(request_data['username'],request_data['password'])
+        if response == True:
+            return jsonify({'msg':'success'})
+        else:
+            return jsonify({'msg':'failed'})
+    elif request_data['task'] == 'register':
+        response = user_register(request_data['username'],request_data['password'])
+        if response == True:
+            return jsonify({'msg':'success'})
+        elif response == False:
+            return jsonify({'msg':'failed'})
+        else:
+            return jsonify({'msg':'error'})
+        
+@app.route('/userupdate', methods=['POST'])
+def user_update_function():
+    request_data = request.json
+    response = user_update(request_data['username'],request_data['password'])
+    if response == True:
+        return jsonify({'msg':'success'})
+    else:
+        return jsonify({'msg':'failed'})
 
 @app.route('/test', methods=['POST','GET'])
 def request_test():

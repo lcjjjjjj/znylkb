@@ -23,3 +23,15 @@ export const getFile = (params) => {
 export const deleteFile = () => {
     return request.delete('/delete')
 }
+
+export const getFilelist = (data) => {
+    return request.get('/getfilelist',{params: data})
+}
+
+export const userOption = (data) => {
+    return request.post('/useroption', data)
+}
+
+export const userUpdate = (data) => {
+    return request.post('/userupdate', data)
+}
