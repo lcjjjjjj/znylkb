@@ -25,9 +25,10 @@
 
 <script setup lang="ts">
 import Panel from '@/components/Panel.vue'
-import { computed, ref, onBeforeMount, onMounted } from 'vue'
-import { getFile, getFilelist } from '@/api';
-import { useStore } from 'vuex';
+import { computed, ref, onBeforeMount, onUpdated} from 'vue'
+import { deleteFile, getFile, getFilelist, deleteTextFile } from '@/api';
+import { useStore } from 'vuex'
+import { ElMessage } from 'element-plus';
 
 interface File {
   date: string
@@ -69,6 +70,15 @@ const handleSave = (index: number, row: File) => {
 }
 const handleDelete = (index: number, row: File) => {
   console.log(index, row)
+  deleteTextFile({filename: row['name'], username: userItem[0]['username']}).then((res) => {
+    console.log(res.data.msg)
+    if(res.data.msg === 'Done'){
+      ElMessage.success('success')
+    }
+    else{
+      ElMessage.error('failed')
+    }
+  })
 }
 
 onBeforeMount(() => {
@@ -79,6 +89,15 @@ onBeforeMount(() => {
     }
   })
 })
+
+// onUpdated(() => {
+//   return getFilelist({user: userItem[0]['username']}).then((res) => {
+//     console.log(res.data)
+//     for (var i=0;i<res.data.length;i++){
+//       tableData.value.push(res.data[i])
+//     }
+//   })
+// })
 
 </script>
 

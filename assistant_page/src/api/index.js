@@ -35,3 +35,7 @@ export const userOption = (data) => {
 export const userUpdate = (data) => {
     return request.post('/userupdate', data)
 }
+
+export const deleteTextFile = (data) => {
+    return request.post('/deletetextfile',data)
+}

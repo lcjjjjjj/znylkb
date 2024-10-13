@@ -107,7 +107,6 @@ def download_audiofile():
             return jsonify({'msg': 'NoFileUpload'})
     elif request.args.get('file') == 'textfile':
         filename = request.args.get('filename')
-        print(type(filename))
         username = request.args.get('username')
         cname = hashlib.sha256(username.encode('utf-8')).hexdigest()
         filepath = '/home/user/code/znylkb/flask/filecache/'+cname+'/'+filename
@@ -164,6 +163,18 @@ def user_update_function():
         return jsonify({'msg':'success'})
     else:
         return jsonify({'msg':'failed'})
+    
+@app.route('/deletetextfile', methods=['POST'])
+def delete_text_file():
+    request_data = request.json
+    filename = request_data['filename']
+    username = request_data['username']
+    cname = hashlib.sha256(username.encode('utf-8')).hexdigest()
+    filepath = '/home/user/code/znylkb/flask/filecache/'+cname+'/'+filename
+    os.remove(filepath)
+    return jsonify({'msg':'Done'})
+
+    
 
 @app.route('/test', methods=['POST','GET'])
 def request_test():
