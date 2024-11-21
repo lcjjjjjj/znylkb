@@ -4,10 +4,11 @@ from Textsum import text_rewrite, text_translate, text_summarize
 from Ifasr import file_asr
 from Rtasr import rtasr_start, rtasr_stop
 from fileconvert import f_convert
-from filemanager import get_file_list, save_text_file
+from filemanager import get_file_list, save_text_file, save_audio_file
 from usermanager import user_login, user_register, user_update
 import os
 import hashlib
+import shutil
 
 app = Flask(__name__)
 CORS(app, resources=r'/*')
@@ -89,30 +90,54 @@ def temp_clear():
 
 @app.route('/download',methods=['GET'])
 def download_audiofile():
-    print(request.args.get)
-    if request.args.get('file') == 'asrfile':
-        if os.path.exists('audio_temp.wav'):
-            return send_file('audio_temp.wav',as_attachment=True,download_name='audio_temp.wav')
-        else:
-            return jsonify({'msg': 'NotFound'})
-    elif request.args.get('file') == 'wavfile':
-        if os.path.exists('./temp_save.wav'):
-            return send_file('temp_save.wav',as_attachment=True,download_name='temp_save.wav')
-        else:
-            return jsonify({'msg': 'NoFileUpload'})
-    elif request.args.get('file') == 'mp3file':
-        if os.path.exists('./temp_save.mp3'):
-            return send_file('temp_save.mp3',as_attachment=True,download_name='temp_save.mp3')
-        else:
-            return jsonify({'msg': 'NoFileUpload'})
-    elif request.args.get('file') == 'textfile':
+    # print(request.args.get)
+    # if request.args.get('file') == 'wavfile':
+    #     if os.path.exists('./temp_save.wav'):
+    #         return send_file('temp_save.wav',as_attachment=True,download_name='temp_save.wav')
+    #     else:
+    #         return jsonify({'msg': 'NoFileUpload'})
+    # elif request.args.get('file') == 'mp3file':
+    #     if os.path.exists('./temp_save.mp3'):
+    #         return send_file('temp_save.mp3',as_attachment=True,download_name='temp_save.mp3')
+    #     else:
+    #         return jsonify({'msg': 'NoFileUpload'})
+    if request.args.get('file') == 'textfile':
         filename = request.args.get('filename')
         username = request.args.get('username')
         cname = hashlib.sha256(username.encode('utf-8')).hexdigest()
-        filepath = '/home/user/code/znylkb/flask/filecache/'+cname+'/'+filename
+        filepath = os.path.join(os.path.abspath("."), "filecache")+'/'+cname+'/'+filename
         return send_file(filepath,as_attachment=True,download_name=filename)
     else:
         return jsonify({'msg': 'NoFileUpload'})
+    
+@app.route('/savefile', methods=['POST'])
+def save_file():
+    data = request.json
+    if data['task'] == 'asr':
+        response = save_audio_file(data['username'])
+        return jsonify({'msg': response})
+    elif data['task'] == 'wav':
+        cache_path = os.path.join(os.path.abspath("."), "filecache")
+        user_dir = hashlib.sha256(data['username'].encode('utf-8')).hexdigest()
+        save_path = os.path.join(cache_path,user_dir)
+        filename = 'record.wav'
+        if os.path.exists('./temp_save.wav'):
+            shutil.copy('./temp_save.wav',os.path.join(save_path,filename))
+            return jsonify({'msg': 'Done'})
+        else:
+            return jsonify({'msg': 'Error'})
+    elif data['task'] == 'mp3':
+        cache_path = os.path.join(os.path.abspath("."), "filecache")
+        user_dir = hashlib.sha256(data['username'].encode('utf-8')).hexdigest()
+        save_path = os.path.join(cache_path,user_dir)
+        filename = 'record.mp3'
+        if os.path.exists('./temp_save.mp3'):
+            shutil.copy('./temp_save.mp3',os.path.join(save_path,filename))
+            return jsonify({'msg': 'Done'})
+        else:
+            return jsonify({'msg': 'Error'})
+    return jsonify({'msg': 'Error'})
+        
     
 @app.route('/convert',methods=['POST','GET'])
 def convert_file():
@@ -170,7 +195,7 @@ def delete_text_file():
     filename = request_data['filename']
     username = request_data['username']
     cname = hashlib.sha256(username.encode('utf-8')).hexdigest()
-    filepath = '/home/user/code/znylkb/flask/filecache/'+cname+'/'+filename
+    filepath = os.path.join(os.path.abspath("."), "filecache")+'/'+cname+'/'+filename
     os.remove(filepath)
     return jsonify({'msg':'Done'})
 

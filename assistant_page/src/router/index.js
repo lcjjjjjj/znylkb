@@ -70,7 +70,7 @@ router.beforeEach((to, from, next) => {
   // 检查页面是否刷新
   console.log(to.path)
   console.log(from.name)
-  if (from.name === undefined && to.path !== '/' && to.path !== '/test') {
+  if (from.name === undefined && to.path !== '/' && to.path !== '/main') {
     next('/');
   } else {
     next();

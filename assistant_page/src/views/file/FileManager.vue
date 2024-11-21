@@ -68,15 +68,23 @@ const handleSave = (index: number, row: File) => {
     window.URL.revokeObjectURL(url)
   })
 }
+
 const handleDelete = (index: number, row: File) => {
   console.log(index, row)
   deleteTextFile({filename: row['name'], username: userItem[0]['username']}).then((res) => {
     console.log(res.data.msg)
     if(res.data.msg === 'Done'){
-      ElMessage.success('success')
+      getFilelist({user: userItem[0]['username']}).then((res) => {
+        console.log(res.data)
+        tableData.value = []
+        for (var i=0;i<res.data.length;i++){
+          tableData.value.push(res.data[i])
+        }
+      })
+      ElMessage.success('删除成功')
     }
     else{
-      ElMessage.error('failed')
+      ElMessage.error('删除失败')
     }
   })
 }

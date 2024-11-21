@@ -39,3 +39,7 @@ export const userUpdate = (data) => {
 export const deleteTextFile = (data) => {
     return request.post('/deletetextfile',data)
 }
+
+export const saveFile =  (data) => {
+    return request.post('/savefile',data)
+}

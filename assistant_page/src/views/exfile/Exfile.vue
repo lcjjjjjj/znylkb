@@ -1,8 +1,9 @@
 <script setup>
 import Panel from '@/components/Panel.vue';
-import { ElMessageBox } from 'element-plus';
-import { getFile, deleteFile } from '@/api';
-import { ref } from 'vue'
+import { ElMessageBox, ElMessage } from 'element-plus';
+import { saveFile, deleteFile } from '@/api';
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 
 const value = ref('')
 
@@ -17,6 +18,11 @@ const options = [
   }
    
 ]
+
+const store = useStore()
+const userItem = computed(() => store.state.user.userInfo).value
+console.log(userItem)
+
 
 const beforeUpload = (file) => {
     const filetype = file.name.split('.').pop().toLowerCase()
@@ -50,45 +56,28 @@ const handleRemove = (file,fileList) => {
     })
 }
 
-const saveFile = () => {
+const handleSavefile = () => {
     if (value.value ==''){
         ElMessageBox.alert('请先上传文件',{confirmButtonText: '确定'}) 
     }
     if (value.value == 'wav'){
-        getFile({file: 'wavfile'}).then((res) => {
-            if (typeof(res) === 'object' && res.data.type === 'application/json'){
-                ElMessageBox.alert('请先上传文件',{confirmButtonText: '确定'})
+        saveFile({task: 'wav', username: userItem[0]['username']}).then((res) => {
+            if (res.data.msg === 'Done'){
+                ElMessage.success('保存成功')
             }
             else{
-                const blob = new Blob([res.data])
-                const link = document.createElement('a')
-                const url = window.URL.createObjectURL(blob)
-                link.href = url
-                link.download = ''
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-                window.URL.revokeObjectURL(url)
+                ElMessageBox.alert('请先上传文件',{confirmButtonText: '确定'})
             }
         })
     }
     else if(value.value == 'mp3'){
-        getFile({file: 'mp3file'}).then((res) => {
-            console.log(typeof(res))
-            console.log(res.data)
-            if (typeof(res) === 'object' && res.data.type === 'application/json'){
-                ElMessageBox.alert('请先上传文件',{confirmButtonText: '确定'})
+        saveFile({task: 'mp3', username: userItem[0]['username']}).then((res) => {
+            console.log(res)
+            if (res.data.msg === 'Done'){
+                ElMessage.success('保存成功')
             }
             else{
-                const blob = new Blob([res.data])
-                const link = document.createElement('a')
-                const url = window.URL.createObjectURL(blob)
-                link.href = url
-                link.download='record.mp3'
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-                window.URL.revokeObjectURL(url)
+                ElMessageBox.alert('请先上传文件',{confirmButtonText: '确定'})
             }
         })
     }
@@ -132,7 +121,7 @@ const saveFile = () => {
             </el-select>
         </div>
         <div class="buttons-right">
-            <el-button type="success" round @Click="saveFile">保存</el-button>
+            <el-button type="success" round @Click="handleSavefile">保存</el-button>
         </div>
     </div>
 </template>

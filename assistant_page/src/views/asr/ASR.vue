@@ -2,7 +2,7 @@
 import Panel from '@/components/Panel.vue';
 import { ref, computed } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { postSignal, postKeep, postClear, getFile } from '@/api';
+import { postSignal, postKeep, postClear, saveFile } from '@/api';
 import { useStore } from 'vuex';
 import { postText } from '@/api';
 
@@ -39,21 +39,12 @@ const onClicksave = () => {
         postText({text: fileContent,task: 'save', username: userItem[0]['username']}).then((res) => {
             console.log(res.data.msg)
             if(res.data.msg === 'Done'){
-                ElMessage.success('success')
+                ElMessage.success('保存成功')
             }
             else{
-                ElMessage.error('failed')
+                ElMessage.error('保存失败')
             }
         })
-        // const blob = new Blob([fileContent],{ type: 'text/plain' })
-        // const link = document.createElement('a')
-        // const url = window.URL.createObjectURL(blob)
-        // link.href = url
-        // link.download = 'save.txt'
-        // document.body.appendChild(link)
-        // link.click()
-        // document.body.removeChild(link)
-        // window.URL.revokeObjectURL(url)
     }
     else{
         ElMessageBox.alert('保存的内容不能为空','温馨提示',{confirmButtonText: '确定',})
@@ -84,21 +75,12 @@ const onClickstop = ()=>{
 const onClicksave_a = () => {
     //通过get请求获得音频文件
     if(result.value !== ''){
-        getFile({file: 'asrfile'}).then((res) => {
-            if(res.data.type !== 'application/json'){
-                console.log(res)
-                const blob = new Blob([res.data])
-                const link = document.createElement('a')
-                const url = window.URL.createObjectURL(blob)
-                link.href = url
-                link.download=''
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-                window.URL.revokeObjectURL(url)
+        saveFile({task: 'asr', username: userItem[0]['username']}).then(res => {
+            if(res.data.msg === 'Done'){
+                ElMessage.success('保存成功')
             }
             else{
-                ElMessageBox.alert('未检测到音频文件','温馨提示',{confirmButtonText: '确定'})
+                ElMessage.error('保存失败，未检测到音频文件')
             }
         })
     }

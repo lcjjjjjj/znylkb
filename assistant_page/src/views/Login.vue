@@ -13,8 +13,8 @@ const loginFunction = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
-      console.log(ruleForm.username,ruleForm.password)
+      // console.log('submit!')
+      // console.log(ruleForm.username,ruleForm.password)
       userOption({task: 'login', username: ruleForm.username, password: ruleForm.password}).then((res) => {
         console.log(res)
         if(res.data.msg === 'success'){
@@ -22,7 +22,7 @@ const loginFunction = (formEl: FormInstance | undefined) => {
           router.push('./main')
         }
         else
-          ElMessage.error('Username or password error')
+          ElMessage.error('用户名或密码错误！')
       })
     } else {
       console.log('error submit!')
@@ -34,18 +34,18 @@ const registerFunction = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
+      // console.log('submit!')
       userOption({task: 'register', username: ruleForm_re.username, password: ruleForm_re.pass}).then((res)=>{
         console.log(res)
         if(res.data.msg === 'success'){
-          ElMessage.success('Register successifully!')
+          ElMessage.success('注册成功！')
           setTimeout(() => window.location.reload(),1000)
           
         }
         else if(res.data.msg === 'failed')
-          ElMessage.error('Username already exist!')
+          ElMessage.error('用户名已存在！')
         else
-          ElMessage.error('Unkown error!')
+          ElMessage.error('未知错误！')
       })
     } else {
       console.log('error submit!')
@@ -157,7 +157,7 @@ const rules_re = reactive<FormRules<typeof ruleForm_re>>({
                 </el-button>
               </div>
             </el-tab-pane>
-            <el-tab-pane label="User Register" name="second">
+            <el-tab-pane label="用户注册" name="second">
               <el-form
                 ref="ruleFormRef_re"
                 style="max-width: 350px;"

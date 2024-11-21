@@ -10,13 +10,6 @@ import { isFileServingAllowed } from 'vite';
 const textarea = ref('')
 const result = ref('')
 
-// const onClick = () => {
-//   postText({text: textarea.value}).then((res) => {
-//       console.log(res)
-//       result.value = res.data.msg
-//   })
-// }
-
 
 const activeName = ref('first')
 const store = useStore()
@@ -83,10 +76,10 @@ const saveFile = () => {
     postText({text: fileContent,task: 'save', username: userItem[0]['username']}).then((res) => {
       console.log(res.data.msg)
       if(res.data.msg === 'Done'){
-        ElMessage.success('success')
+        ElMessage.success('保存成功')
       }
       else{
-        ElMessage.error('failed')
+        ElMessage.error('保存失败')
       }
     })
     // const blob = new Blob([fileContent],{ type: 'text/plain' })
